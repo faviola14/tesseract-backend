@@ -1,6 +1,8 @@
 const { Router } = require("express")
 const router = Router();
 const { get, run } = require('./../services/db');
+//const cors = require('cors');
+
 const { patchValidator } = require('./../middlewares/validators');
 
 router.get('/', async (req, res, next) => {
@@ -11,8 +13,8 @@ router.get('/', async (req, res, next) => {
                 id: toDo.id,
                 title: toDo.title,
                 description: toDo.description,
-                isDone: Boolean(toDo.isDone),
-                create_at: toDo.create_at
+                isDone: Boolean(toDo.isDone)//,
+                //create_at: toDo.create_at
             }
         });
         res.status(200).json({ message: 'To-dos retrieved successfully', data });
