@@ -39,7 +39,9 @@ const initDB = async () => {
             title TEXT,
             description TEXT,
             isDone INTEGER DEFAULT 0,
-            create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            data_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_time_edit TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
             )`);
     } catch(error) {
         console.log(error)

@@ -3,7 +3,7 @@ const router = Router();
 const { get, run } = require('./../services/db');
 //const cors = require('cors');
 
-const { patchValidator } = require('./../middlewares/validators');
+const { patchValidator, postValidator } = require('./../middlewares/validators');
 
 router.get('/', async (req, res, next) => {
     try {
@@ -13,18 +13,21 @@ router.get('/', async (req, res, next) => {
                 id: toDo.id,
                 title: toDo.title,
                 description: toDo.description,
+                data_time: toDo.data_time,
+                data_time_edit: toDo.data_time_edit,
                 isDone: Boolean(toDo.isDone)//,
                 //create_at: toDo.create_at
-            }
+            };
         });
         res.status(200).json({ message: 'To-dos retrieved successfully', data });
-        
+        console.log("GET")
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'error en el servidor', error });
     }
 });
 
-router.post('/', async(req, res, next) => {
+router.post('/', postValidator, async(req, res, next) => {
     try {
         const { title, description } = req.body;
         
@@ -37,9 +40,12 @@ router.post('/', async(req, res, next) => {
                 id: data.lastID,
                 title,
                 description,
+                data_time: data.data_time,
+                data_time_edit: data.data_time_edit,
                 isDone: false,
             }
         });
+        console.log("POST")
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'error en el servidor', error });
@@ -56,18 +62,36 @@ router.patch('/:id',patchValidator, async(req, res, next) => {
             return res.status(404).json({ message: `El ID no de encuentra en la db` });
         }
         const { title, description, isDone } = req.body;
-        const isDoneNumber=Number(isDone)
-        await run('UPDATE todos set title=?, description=?, isDone=? WHERE id=?',
-            [title, description, isDoneNumber, id]
-        );
+        const isDoneNumber = Number(isDone)
+        if (title !== undefined) {
+            await run('UPDATE todos set title=?, data_time_edit= CURRENT_TIMESTAMP WHERE id=?',
+            [title, id]
+            );
+        }
+        if (description !== undefined) {
+            await run('UPDATE todos set description=?, data_time_edit=CURRENT_TIMESTAMP  WHERE id=?',
+            [description, id]
+            );
+        }
+        if (isDone !== undefined) {
+            await run('UPDATE todos set isDone=?, data_time_edit= CURRENT_TIMESTAMP WHERE id=?',
+            [isDoneNumber, id]
+            );
+        }
+        //await run('UPDATE todos set title=?, description=?, isDone=? WHERE id=?',
+        //    [title, description, isDoneNumber, id]
+        //);
         res.status(200).json({
             message: `To-do updated successfully`, toDo: {
                 id,
                 title,
                 description,
                 isDone
-        } })
+            }
+        })
+        console.log("PATCH")
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'error en el servidor', error });
     }
     
@@ -89,9 +113,12 @@ router.delete('/:id', async (req, res, next) => {
                 id: toDo[0].id,
                 title: toDo[0].title,
                 description: toDo[0].description,
+                data_time: toDo[0].data_time,
+                data_time_edit: toDo[0].data_time_edit,
                 isDone: Boolean(toDo[0].isDone)
             }
         })
+        console.log("DELETE")
     } catch (error) {
         res.status(500).json({ message: 'error en el servidor', error });
     }
