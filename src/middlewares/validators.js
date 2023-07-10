@@ -1,13 +1,16 @@
 const patchValidator = (req, res, next) => {
     const { title, description, isDone } = req.body;
     
-    if (typeof title == "undefined") {
-        if (typeof description == "undefined") {
-            if (typeof isDone == "undefined") {
-                return res.status(404).json({ message: 'falta información' })
-            }
-        }
-    }
+    //if (typeof title == "undefined") {
+        //console.log(title)
+    //    if (typeof description == "undefined") {
+            //console.log(description)
+    //        if (typeof isDone == "undefined") {
+                //console.log(isDone)
+    //            return res.status(404).json({ message: 'falta información' })
+    //        }
+    //    }
+    //}
     if (typeof title !== "undefined") {
         if (typeof title !== 'string') {
             return res.status(404).json({ message: 'el tipo del title debe ser tipo string' })

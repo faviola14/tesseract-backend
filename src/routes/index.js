@@ -42,7 +42,7 @@ router.post('/', postValidator, async(req, res, next) => {
                 description,
                 data_time: data.data_time,
                 data_time_edit: data.data_time_edit,
-                isDone: false,
+                isDone: Boolean(data.isDone)
             }
         });
         console.log("POST")
@@ -57,11 +57,17 @@ router.patch('/:id',patchValidator, async(req, res, next) => {
     //console.log(req.params);
     try {
         const { id } = req.params;
-        const toDo = await get('SELECT * FROM todos WHERE id=?', [id]);
-        if (toDo.length === 0) {
+        const data = await get('SELECT * FROM todos WHERE id=?', [id]);
+        if (data.length === 0) {
+            console.log(id)
             return res.status(404).json({ message: `El ID no de encuentra en la db` });
         }
-        const { title, description, isDone } = req.body;
+        const { title, description, isDone, isComplete } = req.body;
+        console.log(title)
+        console.log(description)
+        console.log(isDone)
+        console.log(isComplete)
+        
         const isDoneNumber = Number(isDone)
         if (title !== undefined) {
             await run('UPDATE todos set title=?, data_time_edit= CURRENT_TIMESTAMP WHERE id=?',
@@ -78,15 +84,23 @@ router.patch('/:id',patchValidator, async(req, res, next) => {
             [isDoneNumber, id]
             );
         }
+        if (isComplete !== undefined) {
+            await run('UPDATE todos set isDone=?, data_time_edit= CURRENT_TIMESTAMP WHERE id=?',
+                [!isDoneNumber, id]
+            );
+        }
+
         //await run('UPDATE todos set title=?, description=?, isDone=? WHERE id=?',
         //    [title, description, isDoneNumber, id]
         //);
         res.status(200).json({
-            message: `To-do updated successfully`, toDo: {
+            message: `To-do updated successfully`, toDO: {
                 id,
                 title,
                 description,
-                isDone
+                data_time: data.data_time,
+                data_time_edit: data.data_time_edit,
+                isDone: Boolean(data.isDone)
             }
         })
         console.log("PATCH")
