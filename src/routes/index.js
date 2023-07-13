@@ -1,7 +1,7 @@
 const { Router } = require("express")
 const router = Router();
 const { get, run } = require('./../services/db');
-//const cors = require('cors');
+
 
 const { patchValidator, postValidator } = require('./../middlewares/validators');
 
@@ -54,7 +54,7 @@ router.post('/', postValidator, async(req, res, next) => {
 })
 
 router.patch('/:id',patchValidator, async(req, res, next) => {
-    //console.log(req.params);
+
     try {
         const { id } = req.params;
         const data = await get('SELECT * FROM todos WHERE id=?', [id]);
@@ -63,12 +63,9 @@ router.patch('/:id',patchValidator, async(req, res, next) => {
             return res.status(404).json({ message: `El ID no de encuentra en la db` });
         }
         const { title, description, isDone, isComplete } = req.body;
-        console.log(title)
-        console.log(description)
-        console.log(isDone)
-        console.log(isComplete)
-        
+        let done = isDone;
         const isDoneNumber = Number(isDone)
+        
         if (title !== undefined) {
             await run('UPDATE todos set title=?, data_time_edit= CURRENT_TIMESTAMP WHERE id=?',
             [title, id]
@@ -84,15 +81,20 @@ router.patch('/:id',patchValidator, async(req, res, next) => {
             [isDoneNumber, id]
             );
         }
-        if (isComplete !== undefined) {
-            await run('UPDATE todos set isDone=?, data_time_edit= CURRENT_TIMESTAMP WHERE id=?',
-                [!isDoneNumber, id]
-            );
-        }
-
-        //await run('UPDATE todos set title=?, description=?, isDone=? WHERE id=?',
-        //    [title, description, isDoneNumber, id]
-        //);
+            
+            if (isComplete === true) {
+                done=false
+                await run('UPDATE todos set isDone=0, data_time_edit= CURRENT_TIMESTAMP WHERE id=?',
+                    [id]
+                );
+            }
+            if (isComplete === false) {
+                done=true
+                await run('UPDATE todos set isDone=1, data_time_edit= CURRENT_TIMESTAMP WHERE id=?',
+                    [id]
+                );
+            }
+        
         res.status(200).json({
             message: `To-do updated successfully`, toDO: {
                 id,
@@ -100,7 +102,7 @@ router.patch('/:id',patchValidator, async(req, res, next) => {
                 description,
                 data_time: data.data_time,
                 data_time_edit: data.data_time_edit,
-                isDone: Boolean(data.isDone)
+                isDone: done
             }
         })
         console.log("PATCH")
