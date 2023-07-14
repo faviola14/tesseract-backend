@@ -31,9 +31,7 @@ router.post('/', postValidator, async(req, res, next) => {
     try {
         const { title, description } = req.body;
         
-        //console.log(title,description)
         const data = await run('INSERT INTO todos (title,description) VALUES (?, ?)', [title, description]);
-        //console.log(data);
         //const toDos=await get('SELECT *FROM todos ')
         res.status(200).json({
             message: "To-do created successfully", toDO: {
