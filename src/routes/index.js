@@ -15,7 +15,8 @@ router.get('/', async (req, res, next) => {
                 description: toDo.description,
                 data_time: toDo.data_time,
                 data_time_edit: toDo.data_time_edit,
-                isDone: Boolean(toDo.isDone)//,
+                isDone: Boolean(toDo.isDone),
+                isComplete: Boolean(toDo.isDone)
                 //create_at: toDo.create_at
             };
         });
